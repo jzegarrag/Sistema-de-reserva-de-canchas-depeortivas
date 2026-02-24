@@ -1,12 +1,10 @@
-import { Usuario } from "./Usuario.ts";
+import { Usuario } from "./Usuario";
 
 export class Administrador extends Usuario {
-  private permisos: string[];
-
-  constructor(id: number, nombre: string, email: string) {
-    super(id, nombre, email);
-    this.permisos = ["GESTIONAR_CANCHAS", "VER_REPORTES"];
-  }
+  private permisos: string[] = [
+    "GESTIONAR_CANCHAS",
+    "VER_REPORTES"
+  ];
 
   getPermisos(): string[] {
     return this.permisos;

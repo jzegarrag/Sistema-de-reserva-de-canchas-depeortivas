@@ -1,11 +1,7 @@
-import { Reserva } from "../Reserva";
+import { Reserva } from "../models/Reserva";
 
 export class ReporteUso {
-  private reservas: Reserva[];
-
-  constructor(reservas: Reserva[]) {
-    this.reservas = reservas;
-  }
+  constructor(private reservas: Reserva[]) {}
 
   totalReservas(): number {
     return this.reservas.length;
