@@ -1,5 +1,5 @@
-import { Usuario } from "./Usuario.ts";
-import { Cancha } from "./Cancha";
+import { Usuario } from "./Usuario";
+import { Cancha } from "./Canchas";
 import { Reserva } from "./Reserva";
 import { GestorReservas } from "./GestorReservas";
 
