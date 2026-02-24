@@ -1,7 +1,7 @@
-import { Usuario } from "./Usuario";
-import { Cancha } from "./Canchas";
-import { Reserva } from "./Reserva";
-import { GestorReservas } from "./GestorReservas";
+import { Usuario } from "./models/Usuario";
+import { Cancha } from "./models/Canchas";
+import { Reserva } from "./models/Reserva";
+import { GestorReservas } from "./services/GestorReservas";
 
 const usuario1 = new Usuario(1, "Carlos", "carlos@mail.com");
 const cancha1 = new Cancha(1, "Cancha Central", "Futbol");

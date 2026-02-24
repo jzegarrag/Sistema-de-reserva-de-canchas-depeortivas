@@ -1,4 +1,4 @@
-import { Reserva } from "./Reserva";
+import { Reserva } from "../Reserva";
 
 export class ReporteUso {
   private reservas: Reserva[];
