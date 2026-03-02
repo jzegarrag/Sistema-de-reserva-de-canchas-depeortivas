@@ -1,28 +1,100 @@
 import { Reserva } from "../models/Reserva";
+import { Incidente } from "../models/Incidente";
+import { Cancha } from "../models/Canchas";
 
 export class GestorReservas {
+
   private reservas: Reserva[] = [];
+  private incidentes: Incidente[] = [];
 
-  agregarReserva(reserva: Reserva): void {
-    this.reservas.push(reserva);
-  }
+  private canchas: Cancha[] = [
+    new Cancha(1, "Cancha 1", "Fútbol"),
+    new Cancha(2, "Cancha 2", "Fútbol"),
+    new Cancha(3, "Cancha 3", "Vóley"),
+    new Cancha(4, "Cancha 4", "Basket")
+  ];
 
-  cancelarReserva(indice: number): void {
-    if (indice >= 0 && indice < this.reservas.length) {
-      this.reservas.splice(indice, 1);
-      console.log("Reserva cancelada correctamente");
-    } else {
-      console.log("Índice de reserva inválido");
+  agregarReserva(reserva: Reserva): boolean {
+    if (this.hayCruce(reserva)) {
+      console.log("⚠️ ALERTA: ese horario ya está reservado");
+      return false;
     }
+
+    this.reservas.push(reserva);
+    console.log("✅ Reserva registrada correctamente");
+    return true;
   }
 
-  mostrarReservas(): void {
-    this.reservas.forEach((r, i) =>
-      console.log(`[${i}] ${r.getDetalle()}`)
+  private hayCruce(nueva: Reserva): boolean {
+    return this.reservas.some(r =>
+      r.getHorario().getFecha() === nueva.getHorario().getFecha() &&
+      r.getHorario().getHora() === nueva.getHorario().getHora() &&
+      r.getCancha().getId() === nueva.getCancha().getId()
     );
   }
 
-  getReservas(): Reserva[] {
-    return this.reservas;
+  getCanchasDisponibles(fecha: string, hora: string): Cancha[] {
+    return this.canchas.filter(c =>
+      !this.reservas.some(r =>
+        r.getCancha().getId() === c.getId() &&
+        r.getHorario().getFecha() === fecha &&
+        r.getHorario().getHora() === hora
+      )
+    );
+  }
+
+  mostrarReservas() {
+    if (this.reservas.length === 0) {
+      console.log("No hay reservas registradas");
+      return;
+    }
+
+    this.reservas.forEach(r => {
+      console.log(
+        `${r.getUsuario().getNombre()} | ${r.getCancha().getNombre()} | ${r.getHorario().getFecha()} ${r.getHorario().getHora()}`
+      );
+    });
+  }
+
+  agregarIncidente(incidente: Incidente) {
+    this.incidentes.push(incidente);
+    console.log("🚨 Incidente registrado");
+  }
+
+  mostrarIncidentes() {
+    if (this.incidentes.length === 0) {
+      console.log("No hay incidentes reportados");
+      return;
+    }
+
+    this.incidentes.forEach(i => {
+      console.log(`${i.getFecha()} → ${i.getDescripcion()}`);
+    });
+  }
+
+  // ⭐ Precio dinámico según tipo y horario
+  calcularPrecio(tipoCancha: string, hora24: number): number {
+    let precioBase = 0;
+
+    switch (tipoCancha.toLowerCase()) {
+      case "fútbol":
+        precioBase = 80;
+        break;
+      case "vóley":
+        precioBase = 50;
+        break;
+      case "basket":
+        precioBase = 60;
+        break;
+      default:
+        precioBase = 40;
+    }
+
+    // 🌙 horario nocturno: 17:00 a 07:00
+    if (hora24 >= 17 || hora24 < 7) {
+      precioBase += 20;
+    }
+
+    return precioBase;
   }
 }

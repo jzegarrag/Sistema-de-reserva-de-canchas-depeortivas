@@ -1,0 +1,18 @@
+[
+  {
+    "usuario": {
+      "id": 1,
+      "nombre": "jairo",
+      "telefono": "952123847"
+    },
+    "cancha": {
+      "id": 1,
+      "nombre": "rosales",
+      "tipo": "futbol"
+    },
+    "horario": {
+      "fecha": "18/05/12",
+      "hora": "8:00"
+    }
+  }
+]

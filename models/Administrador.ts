@@ -1,12 +1,13 @@
-import { Usuario } from "./Usuario";
+export class Usuario {
+  constructor(
+    private id: number,
+    private nombre: string,
+    private email: string,
+    private telefono: string
+  ) {}
 
-export class Administrador extends Usuario {
-  private permisos: string[] = [
-    "GESTIONAR_CANCHAS",
-    "VER_REPORTES"
-  ];
-
-  getPermisos(): string[] {
-    return this.permisos;
-  }
+  getId(): number { return this.id; }
+  getNombre(): string { return this.nombre; }
+  getEmail(): string { return this.email; }
+  getTelefono(): string { return this.telefono; }
 }

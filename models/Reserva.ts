@@ -6,13 +6,31 @@ export class Reserva {
   constructor(
     private usuario: Usuario,
     private cancha: Cancha,
-    private horario: Horario
+    private horario: Horario,
+    private precio: number
   ) {}
 
-  getDetalle(): string {
-    return `${this.usuario.getNombre()} reservó ${this.cancha.getNombre()} el ${this.horario.getFecha()} a las ${this.horario.getHora()}`;
+  getUsuario(): Usuario {
+    return this.usuario;
   }
 
-  getFecha(): string { return this.horario.getFecha(); }
-  getHora(): string { return this.horario.getHora(); }
+  getCancha(): Cancha {
+    return this.cancha;
+  }
+
+  getHorario(): Horario {
+    return this.horario;
+  }
+
+  getPrecio(): number {
+    return this.precio;
+  }
+
+  getFecha(): string {
+    return this.horario.getFecha();
+  }
+
+  getHora(): string {
+    return this.horario.getHora();
+  }
 }
