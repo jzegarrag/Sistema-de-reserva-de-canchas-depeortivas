@@ -6,6 +6,8 @@ import { Incidente } from "./models/Incidente";
 import { Validador } from "./utils/Validador";
 
 import * as readline from "readline";
+import { GestorAutenticacion } from "./services/GestorAutentication";
+import { Administrador } from "./models/Administrador";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -23,9 +25,6 @@ const admins = [
   { user: "admin2", pass: "abcd" }
 ];
 
-function loginAdmin(user: string, pass: string): boolean {
-  return admins.some(a => a.user === user && a.pass === pass);
-}
 
 async function menuPrincipal() {
   console.log("\n=== SISTEMA DE RESERVA DE CANCHAS ===");
@@ -129,7 +128,8 @@ async function crearReserva() {
   const usuario = new Usuario(
     Date.now(),
     nombre,
-    telefono
+    telefono,
+    
   );
 
   let fecha = await preguntar("Fecha (YYYY-MM-DD): ");
@@ -175,5 +175,69 @@ async function crearReserva() {
   if (gestor.agregarReserva(reserva)) {
     console.log(`✅ Reserva creada. Precio: S/ ${precio}`);
   }
+}
+const gestorAuth = new GestorAutenticacion(); // NUEVO
+let usuarioAutenticado: Usuario | null = null; // NUEVO
+let adminAutenticado: Administrador | null = null; // NUEVO
+
+// Reemplazar loginAdmin función vieja por:
+
+async function loginAdmin(user: string, pass: string): boolean {
+  try {
+    gestorAuth.iniciarSesionAdmin(user, pass);
+    adminAutenticado = gestorAuth.obtenerAdminActual() as any;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Agregar nuevo menú de registro/login para usuario:
+
+async function menuAutenticacion() {
+  console.log("\n=== AUTENTICACIÓN CLIENTE ===");
+  console.log("1. Registrarse");
+  console.log("2. Iniciar Sesión");
+  console.log("3. Volver");
+
+  const opcion = await preguntar("Seleccione: ");
+
+  switch (opcion) {
+    case "1":
+      const nombre = await preguntar("Nombre: ");
+      const email = await preguntar("Email: ");
+      const contraseña = await preguntar("Contraseña: ");
+      const telefono = await preguntar("Teléfono: ");
+
+      try {
+        const usuario = gestorAuth.registrarUsuario(nombre, email, contraseña, telefono);
+        gestorAuth.iniciarSesionUsuario(email, contraseña);
+        usuarioAutenticado = usuario;
+        console.log(`✅ Bienvenido ${usuario.getNombre()}`);
+        await menuCliente();
+      } catch (error: any) {
+        console.log(`❌ Error: ${error.message}`);
+      }
+      break;
+
+    case "2":
+      const emailLogin = await preguntar("Email: ");
+      const contraLogin = await preguntar("Contraseña: ");
+
+      try {
+        gestorAuth.iniciarSesionUsuario(emailLogin, contraLogin);
+        usuarioAutenticado = gestorAuth.obtenerUsuarioActual();
+        console.log(`✅ Bienvenido ${usuarioAutenticado?.getNombre()}`);
+        await menuCliente();
+      } catch (error: any) {
+        console.log(`❌ Error: ${error.message}`);
+      }
+      break;
+
+    case "3":
+      return;
+  }
+
+  await menuAutenticacion();
 }
 menuPrincipal();
