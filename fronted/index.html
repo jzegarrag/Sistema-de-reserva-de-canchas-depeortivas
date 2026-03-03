@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sistema de Reservas</title>
+</head>
+<body>
+
+<h1>Reserva tu Cancha</h1>
+
+<input id="nombre" placeholder="Nombre"><br>
+<input id="telefono" placeholder="Teléfono"><br>
+<input id="fecha" type="date"><br>
+<input id="hora" type="time"><br>
+
+<button onclick="crearReserva()">Reservar</button>
+
+<script>
+async function crearReserva() {
+  const data = {
+    usuario: document.getElementById("nombre").value,
+    telefono: document.getElementById("telefono").value,
+    fecha: document.getElementById("fecha").value,
+    hora: document.getElementById("hora").value
+  };
+
+  await fetch("http://localhost:3000/reservas", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  alert("Reserva enviada");
+}
+</script>
+
+</body>
+</html>
