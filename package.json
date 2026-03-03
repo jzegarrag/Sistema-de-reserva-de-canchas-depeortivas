@@ -23,9 +23,9 @@
     "v8-compile-cache-lib": "^3.0.1",
     "yn": "^3.1.1"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+ "scripts": {
+  "dev": "ts-node backend/server.ts"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jzegarrag/Sistema-de-reserva-de-canchas-depeortivas.git"

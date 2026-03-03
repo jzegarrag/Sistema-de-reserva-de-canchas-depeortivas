@@ -97,4 +97,10 @@ export class GestorReservas {
 
     return precioBase;
   }
+  obtenerReservas(): Reserva[] {
+  return this.reservas;
+}
+obtenerIncidentes(): Incidente[] {
+  return this.incidentes;
+}
 }

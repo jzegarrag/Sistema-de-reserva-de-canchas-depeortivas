@@ -1,36 +1,184 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sistema de Reservas</title>
+  <title>Sistema de Reserva</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    button { margin: 5px; padding: 6px 10px; }
+    input { display:block; margin:5px 0; padding:6px; }
+    .box { border:1px solid #ccc; padding:10px; margin-top:10px; }
+  </style>
 </head>
 <body>
 
-<h1>Reserva tu Cancha</h1>
+<h1>SISTEMA DE RESERVA DE CANCHAS</h1>
 
-<input id="nombre" placeholder="Nombre"><br>
-<input id="telefono" placeholder="Teléfono"><br>
-<input id="fecha" type="date"><br>
-<input id="hora" type="time"><br>
+<div id="menuPrincipal">
 
-<button onclick="crearReserva()">Reservar</button>
+  <h2>Menú Principal</h2>
+  <button onclick="mostrarCliente()">Entrar como Cliente</button>
+  <button onclick="mostrarLoginAdmin()">Entrar como Administrador</button>
+
+</div>
+
+<div id="cliente" style="display:none;">
+  <h2>Modo Cliente</h2>
+
+  <button onclick="mostrarFormularioReserva()">Crear Reserva</button>
+  <button onclick="verReservas()">Ver Horarios Reservados</button>
+  <button onclick="volver()">Volver</button>
+
+  <div id="formReserva" style="display:none;">
+    <h3>Nueva Reserva</h3>
+    <input id="nombre" placeholder="Nombre">
+    <input id="telefono" placeholder="Teléfono">
+    <input id="fecha" type="date">
+    <input id="hora" type="time">
+    <input id="canchaId" placeholder="ID Cancha">
+    <button onclick="crearReserva()">Confirmar Reserva</button>
+  </div>
+
+  <div id="listaReservas"></div>
+</div>
+
+<div id="adminLogin" style="display:none;">
+  <h2>Login Administrador</h2>
+  <input id="adminUser" placeholder="Usuario">
+  <input id="adminPass" type="password" placeholder="Contraseña">
+  <button onclick="loginAdmin()">Iniciar Sesión</button>
+  <button onclick="volver()">Volver</button>
+</div>
+
+<div id="admin" style="display:none;">
+  <h2>Modo Administrador</h2>
+
+  <button onclick="verReservas()">Ver Horarios Reservados</button>
+  <button onclick="mostrarIncidente()">Registrar Incidente</button>
+  <button onclick="verIncidentes()">Ver Incidentes</button>
+  <button onclick="volver()">Volver</button>
+
+  <div id="formIncidente" style="display:none;">
+    <input id="descripcion" placeholder="Descripción">
+    <input id="fechaIncidente" type="date">
+    <button onclick="registrarIncidente()">Registrar</button>
+  </div>
+
+  <div id="listaIncidentes"></div>
+</div>
 
 <script>
-async function crearReserva() {
+
+function ocultarTodo(){
+  document.getElementById("menuPrincipal").style.display="none";
+  document.getElementById("cliente").style.display="none";
+  document.getElementById("adminLogin").style.display="none";
+  document.getElementById("admin").style.display="none";
+}
+
+function volver(){
+  ocultarTodo();
+  document.getElementById("menuPrincipal").style.display="block";
+}
+
+function mostrarCliente(){
+  ocultarTodo();
+  document.getElementById("cliente").style.display="block";
+}
+
+function mostrarLoginAdmin(){
+  ocultarTodo();
+  document.getElementById("adminLogin").style.display="block";
+}
+
+function mostrarFormularioReserva(){
+  document.getElementById("formReserva").style.display="block";
+}
+
+async function crearReserva(){
   const data = {
-    usuario: document.getElementById("nombre").value,
-    telefono: document.getElementById("telefono").value,
-    fecha: document.getElementById("fecha").value,
-    hora: document.getElementById("hora").value
+    nombre: nombre.value,
+    telefono: telefono.value,
+    canchaId: Number(canchaId.value),
+    fecha: fecha.value,
+    hora: hora.value
   };
 
-  await fetch("http://localhost:3000/reservas", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+  const res = await fetch("http://localhost:3000/reservas",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
   });
 
-  alert("Reserva enviada");
+  const r = await res.json();
+  alert(r.mensaje || r.error);
 }
+
+async function verReservas(){
+  const res = await fetch("http://localhost:3000/reservas");
+  const data = await res.json();
+
+  let html="";
+  data.forEach(r=>{
+    html += `<div class="box">
+      ${r.usuario.nombre} - ${r.fecha} ${r.hora} - ${r.cancha.nombre} - S/${r.precio}
+    </div>`;
+  });
+
+  document.getElementById("listaReservas").innerHTML = html;
+}
+
+async function loginAdmin(){
+  const data={
+    user: adminUser.value,
+    pass: adminPass.value
+  };
+
+  const res = await fetch("http://localhost:3000/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
+  });
+
+  if(res.status===200){
+    ocultarTodo();
+    document.getElementById("admin").style.display="block";
+  }else{
+    alert("Credenciales incorrectas");
+  }
+}
+
+function mostrarIncidente(){
+  document.getElementById("formIncidente").style.display="block";
+}
+
+async function registrarIncidente(){
+  const data={
+    descripcion: descripcion.value,
+    fecha: fechaIncidente.value
+  };
+
+  const res = await fetch("http://localhost:3000/incidentes",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
+  });
+
+  const r = await res.json();
+  alert(r.mensaje);
+}
+
+async function verIncidentes(){
+  const res = await fetch("http://localhost:3000/incidentes");
+  const data = await res.json();
+
+  let html="";
+  data.forEach(i=>{
+    html+=`<div class="box">${i.fecha} - ${i.descripcion}</div>`;
+  });
+
+  document.getElementById("listaIncidentes").innerHTML=html;
+}
+
 </script>
 
 </body>
