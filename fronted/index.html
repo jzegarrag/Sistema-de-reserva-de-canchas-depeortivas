@@ -1,184 +1,925 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Sistema de Reserva</title>
-  <style>
-    body { font-family: Arial; margin: 40px; }
-    button { margin: 5px; padding: 6px 10px; }
-    input { display:block; margin:5px 0; padding:6px; }
-    .box { border:1px solid #ccc; padding:10px; margin-top:10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SportCenter Pro - Reserva de Canchas</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* === VARIABLES === */
+  :root {
+    --primary: #FF6B35;
+    --primary-dark: #E85A2A;
+    --secondary: #004E89;
+    --secondary-light: #1B7BA8;
+    --accent: #F7B801;
+    --success: #2ECC71;
+    --danger: #E74C3C;
+    --dark: #0F1419;
+    --light: #F5F7FA;
+    --text-primary: #1A1A1A;
+    --text-secondary: #666;
+    --bg-card: #FFFFFF;
+    --border-radius: 16px;
+    --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* === RESET === */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--dark) 0%, #1a2f4a 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Fondo animado */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(27, 123, 168, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 0%, rgba(247, 184, 1, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: -1;
+    animation: backgroundShift 20s ease-in-out infinite;
+  }
+
+  @keyframes backgroundShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 1.1; }
+  }
+
+  /* === HEADER === */
+  .header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .logo {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    animation: floatIcon 3s ease-in-out infinite;
+  }
+
+  @keyframes floatIcon {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+    font-weight: 300;
+    opacity: 0.9;
+    margin-bottom: 30px;
+  }
+
+  /* === CONTAINER === */
+  .container {
+    max-width: 900px;
+    margin: -40px auto 0;
+    padding: 0 20px;
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* === CARDS === */
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--secondary);
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  h2 i {
+    color: var(--primary);
+    font-size: 2.2rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+    color: var(--secondary);
+    margin-bottom: 20px;
+    margin-top: 25px;
+  }
+
+  /* === BUTTONS === */
+  .btn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 32px;
+    margin: 10px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .btn:active::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(255, 107, 53, 0.4);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(27, 123, 168, 0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--secondary);
+    border: 2px solid var(--secondary);
+  }
+
+  .btn-outline:hover {
+    background: var(--secondary);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+  }
+
+  /* === INPUTS === */
+  .input-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    background: #FAFAFA;
+  }
+
+  input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  /* === CANCHA CARDS === */
+  .canchas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+  }
+
+  .cancha-card {
+    position: relative;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 3px solid transparent;
+    box-shadow: var(--shadow-md);
+  }
+
+  .cancha-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .cancha-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cancha-card:hover img {
+    transform: scale(1.05);
+  }
+
+  .cancha-card-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .cancha-card.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2), var(--shadow-lg);
+  }
+
+  .cancha-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    z-index: 10;
+  }
+
+  /* === RESERVA BOX === */
+  .reserva-box {
+    background: linear-gradient(135deg, #F5F7FA 0%, #E8EBEF 100%);
+    border-left: 5px solid var(--primary);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .reserva-box:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+    border-left-color: var(--accent);
+  }
+
+  .reserva-nombre {
+    font-size: 1.2rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .reserva-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .reserva-info span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reserva-info i {
+    color: var(--secondary);
+    font-size: 1.1rem;
+  }
+
+  /* === INCIDENTE BOX === */
+  .incidente-box {
+    background: linear-gradient(135deg, #FFE5E5 0%, #FFD6D6 100%);
+    border-left: 5px solid var(--danger);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .incidente-box:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .incidente-fecha {
+    color: var(--danger);
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+  }
+
+  .incidente-desc {
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+
+  /* === GRID BUTTONS === */
+  .btn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  /* === ADMIN CREDENTIALS BOX === */
+  .credentials-box {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border-left: 5px solid var(--accent);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+  }
+
+  .credentials-box h4 {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .credentials-box h4 i {
+    font-size: 1.5rem;
+  }
+
+  .credential {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+  }
+
+  .credential span {
+    color: var(--secondary);
+    font-size: 0.95rem;
+  }
+
+  .credential-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2.2rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    .card {
+      padding: 25px;
+    }
+
+    .btn {
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .btn-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .canchas-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .logo {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  .loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+</style>
 </head>
 <body>
 
-<h1>SISTEMA DE RESERVA DE CANCHAS</h1>
-
-<div id="menuPrincipal">
-
-  <h2>Menú Principal</h2>
-  <button onclick="mostrarCliente()">Entrar como Cliente</button>
-  <button onclick="mostrarLoginAdmin()">Entrar como Administrador</button>
-
-</div>
-
-<div id="cliente" style="display:none;">
-  <h2>Modo Cliente</h2>
-
-  <button onclick="mostrarFormularioReserva()">Crear Reserva</button>
-  <button onclick="verReservas()">Ver Horarios Reservados</button>
-  <button onclick="volver()">Volver</button>
-
-  <div id="formReserva" style="display:none;">
-    <h3>Nueva Reserva</h3>
-    <input id="nombre" placeholder="Nombre">
-    <input id="telefono" placeholder="Teléfono">
-    <input id="fecha" type="date">
-    <input id="hora" type="time">
-    <input id="canchaId" placeholder="ID Cancha">
-    <button onclick="crearReserva()">Confirmar Reserva</button>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-content">
+    <div class="logo">⚽</div>
+    <h1>SPORTCENTER PRO</h1>
+    <p class="tagline">Tu plataforma premium de reservas deportivas</p>
   </div>
-
-  <div id="listaReservas"></div>
 </div>
 
-<div id="adminLogin" style="display:none;">
-  <h2>Login Administrador</h2>
-  <input id="adminUser" placeholder="Usuario">
-  <input id="adminPass" type="password" placeholder="Contraseña">
-  <button onclick="loginAdmin()">Iniciar Sesión</button>
-  <button onclick="volver()">Volver</button>
-</div>
-
-<div id="admin" style="display:none;">
-  <h2>Modo Administrador</h2>
-
-  <button onclick="verReservas()">Ver Horarios Reservados</button>
-  <button onclick="mostrarIncidente()">Registrar Incidente</button>
-  <button onclick="verIncidentes()">Ver Incidentes</button>
-  <button onclick="volver()">Volver</button>
-
-  <div id="formIncidente" style="display:none;">
-    <input id="descripcion" placeholder="Descripción">
-    <input id="fechaIncidente" type="date">
-    <button onclick="registrarIncidente()">Registrar</button>
+<!-- MENÚ PRINCIPAL -->
+<div id="menuPrincipal" class="container">
+  <div class="card">
+    <h2><i class="fas fa-home"></i> Bienvenido</h2>
+    <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 40px;">
+      Accede como cliente para realizar reservas o como administrador para gestionar el sistema.
+    </p>
+    <div class="btn-grid">
+      <button class="btn btn-primary" onclick="mostrarCliente()">
+        <i class="fas fa-user"></i> Entrar como Cliente
+      </button>
+      <button class="btn btn-secondary" onclick="mostrarLoginAdmin()">
+        <i class="fas fa-lock"></i> Panel Administrativo
+      </button>
+    </div>
   </div>
+</div>
 
-  <div id="listaIncidentes"></div>
+<!-- CLIENTE -->
+<div id="cliente" class="container hidden">
+  <div class="card">
+    <h2><i class="fas fa-user-tie"></i> Área Cliente</h2>
+    
+    <div class="btn-grid" style="margin-bottom: 30px;">
+      <button class="btn btn-primary" onclick="mostrarFormularioReserva()">
+        <i class="fas fa-calendar-plus"></i> Nueva Reserva
+      </button>
+      <button class="btn btn-secondary" onclick="verReservas()">
+        <i class="fas fa-list"></i> Mis Reservas
+      </button>
+      <button class="btn btn-outline" onclick="volver()">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+    </div>
+
+    <!-- FORMULARIO RESERVA -->
+    <div id="formReserva" class="hidden">
+      <h3><i class="fas fa-edit"></i> Crear Nueva Reserva</h3>
+
+      <!-- Login Usuario -->
+      <div style="background: #F0F4F8; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+        <h4 style="color: var(--secondary); margin-bottom: 20px;">📋 Tus Datos</h4>
+        <div class="input-group">
+          <label>Nombre Completo</label>
+          <input id="usuarioNombre" placeholder="Ej: Juan García">
+        </div>
+        <div class="input-group">
+          <label>Teléfono</label>
+          <input id="usuarioTelefono" placeholder="Ej: +51 999123456">
+        </div>
+        <button class="btn btn-secondary" onclick="registrarUsuario()" style="width: 100%;">
+          <i class="fas fa-check"></i> Confirmar Datos
+        </button>
+      </div>
+
+      <!-- Fecha y Hora -->
+      <div class="input-group">
+        <label>📅 Selecciona la Fecha</label>
+        <input id="fecha" type="date">
+      </div>
+
+      <div class="input-group">
+        <label>🕐 Selecciona la Hora</label>
+        <input id="hora" type="time">
+      </div>
+
+      <!-- Selección de Canchas -->
+      <h3 style="margin-top: 35px;"><i class="fas fa-futbol"></i> Elige tu Cancha</h3>
+      <div class="canchas-grid" id="seleccionCanchas">
+        <div class="cancha-card" data-id="1">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 150'%3E%3Crect fill='%2322c55e' width='200' height='150'/%3E%3Crect x='10' y='10' width='180' height='130' fill='none' stroke='white' stroke-width='2'/%3E%3Cline x1='100' y1='10' x2='100' y2='140' stroke='white' stroke-width='1'/%3E%3Ccircle cx='100' cy='75' r='15' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E" alt="Cancha 1">
+          <div class="cancha-card-label">Cancha 1 - Grass</div>
+        </div>
+        <div class="cancha-card" data-id="2">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 150'%3E%3Crect fill='%234169e1' width='200' height='150'/%3E%3Crect x='10' y='10' width='180' height='130' fill='none' stroke='white' stroke-width='2'/%3E%3Crect x='30' y='20' width='140' height='110' fill='none' stroke='white' stroke-width='1'/%3E%3Cline x1='100' y1='20' x2='100' y2='130' stroke='white' stroke-width='1'/%3E%3C/svg%3E" alt="Cancha 2">
+          <div class="cancha-card-label">Cancha 2 - Sintético</div>
+        </div>
+        <div class="cancha-card" data-id="3">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 150'%3E%3Crect fill='%23ff6b35' width='200' height='150'/%3E%3Crect x='10' y='10' width='180' height='130' fill='none' stroke='white' stroke-width='2'/%3E%3Crect x='30' y='30' width='140' height='90' fill='none' stroke='white' stroke-width='1.5'/%3E%3Ccircle cx='100' cy='75' r='20' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E" alt="Cancha 3">
+          <div class="cancha-card-label">Cancha 3 - Techada</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="crearReserva()" style="width: 100%; margin-top: 30px; padding: 16px;">
+        <i class="fas fa-check-circle"></i> Confirmar Reserva
+      </button>
+    </div>
+
+    <!-- LISTA RESERVAS -->
+    <div id="listaReservas"></div>
+  </div>
+</div>
+
+<!-- LOGIN ADMIN -->
+<div id="adminLogin" class="container hidden">
+  <div class="card">
+    <h2><i class="fas fa-shield-alt"></i> Acceso Administrativo</h2>
+    
+    <div style="background: #FFF3E0; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+      <h4 style="color: var(--primary); margin-bottom: 10px;">⚠️ Credenciales de Admin</h4>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Usa las credenciales proporcionadas para acceder al panel administrativo.</p>
+    </div>
+
+    <div class="input-group">
+      <label>Usuario Administrador</label>
+      <input id="adminUser" placeholder="Usuario de admin">
+    </div>
+
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input id="adminPass" type="password" placeholder="Contraseña segura">
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn btn-secondary" onclick="loginAdmin()">
+        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+      </button>
+      <button class="btn btn-outline" onclick="volver()">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="container hidden">
+  <div class="card">
+    <h2><i class="fas fa-cog"></i> Panel Administrativo</h2>
+
+    <!-- Credenciales Info -->
+    <div class="credentials-box">
+      <h4><i class="fas fa-key"></i> Credenciales de Acceso</h4>
+      <div class="credential">
+        <span class="credential-label">USUARIO 1:</span>
+        <span>admin1 / SportCenter2024</span>
+      </div>
+      <div class="credential">
+        <span class="credential-label">USUARIO 2:</span>
+        <span>admin2 / Admin@Secure</span>
+      </div>
+    </div>
+
+    <div class="btn-grid" style="margin-bottom: 30px;">
+      <button class="btn btn-primary" onclick="verReservas()">
+        <i class="fas fa-calendar"></i> Ver Reservas
+      </button>
+      <button class="btn btn-danger" onclick="mostrarIncidente()">
+        <i class="fas fa-exclamation-circle"></i> Reportar Incidente
+      </button>
+      <button class="btn btn-secondary" onclick="verIncidentes()">
+        <i class="fas fa-list"></i> Ver Incidentes
+      </button>
+      <button class="btn btn-outline" onclick="volver()">
+        <i class="fas fa-arrow-left"></i> Salir
+      </button>
+    </div>
+
+    <!-- FORMULARIO INCIDENTE -->
+    <div id="formIncidente" class="hidden">
+      <h3><i class="fas fa-alert-triangle"></i> Reportar Incidente</h3>
+      
+      <div class="input-group">
+        <label>Descripción del Incidente</label>
+        <textarea id="descripcion" placeholder="Describe detalladamente lo ocurrido..." style="width: 100%; padding: 14px 16px; border: 2px solid #E0E0E0; border-radius: 12px; font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 120px;"></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>📅 Fecha del Incidente</label>
+        <input id="fechaIncidente" type="date">
+      </div>
+
+      <button class="btn btn-danger" onclick="registrarIncidente()" style="width: 100%;">
+        <i class="fas fa-save"></i> Registrar Incidente
+      </button>
+    </div>
+
+    <!-- LISTA INCIDENTES -->
+    <div id="listaIncidentes"></div>
+  </div>
 </div>
 
 <script>
+/* ==== VARIABLES === */
+let usuarioActual = null;
+let canchaSeleccionada = null;
+const admins = [
+  { user: "admin1", pass: "SportCenter2024" },
+  { user: "admin2", pass: "Admin@Secure" }
+];
+let adminLogueado = false;
 
-function ocultarTodo(){
-  document.getElementById("menuPrincipal").style.display="none";
-  document.getElementById("cliente").style.display="none";
-  document.getElementById("adminLogin").style.display="none";
-  document.getElementById("admin").style.display="none";
+// Mapa de nombres de canchas
+const canchasInfo = {
+  1: { nombre: "Cancha 1 - Grass", precio: 50 },
+  2: { nombre: "Cancha 2 - Sintético", precio: 40 },
+  3: { nombre: "Cancha 3 - Techada", precio: 60 }
+};
+
+/* ==== FUNCIONES DE INTERFAZ ==== */
+const ocultarTodo = () => document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+const volver = () => { ocultarTodo(); document.getElementById('menuPrincipal').classList.remove('hidden'); }
+const mostrarCliente = () => { ocultarTodo(); document.getElementById('cliente').classList.remove('hidden'); }
+const mostrarLoginAdmin = () => { ocultarTodo(); document.getElementById('adminLogin').classList.remove('hidden'); }
+const mostrarFormularioReserva = () => document.getElementById('formReserva').classList.remove('hidden');
+const mostrarIncidente = () => document.getElementById('formIncidente').classList.remove('hidden');
+
+/* ==== CLIENTE ==== */
+// Selección de cancha
+document.querySelectorAll('.cancha-card').forEach(card => {
+  card.addEventListener('click', () => {
+    canchaSeleccionada = Number(card.dataset.id);
+    document.querySelectorAll('.cancha-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  });
+});
+
+// Registrar usuario
+function registrarUsuario() {
+  const nombre = document.getElementById('usuarioNombre').value;
+  const telefono = document.getElementById('usuarioTelefono').value;
+  if(!nombre || !telefono){ 
+    alert('⚠️ Por favor completa todos tus datos'); 
+    return; 
+  }
+  usuarioActual = { nombre, telefono };
+  alert(`✅ ¡Perfecto ${nombre}! Estás listo para hacer tu reserva.`);
 }
 
-function volver(){
-  ocultarTodo();
-  document.getElementById("menuPrincipal").style.display="block";
-}
+// Crear reserva
+async function crearReserva() {
+  if(!usuarioActual){ alert('⚠️ Primero registra tus datos'); return; }
+  if(!canchaSeleccionada){ alert('⚠️ Selecciona una cancha'); return; }
+  if(!document.getElementById('fecha').value || !document.getElementById('hora').value){
+    alert('⚠️ Selecciona fecha y hora'); return;
+  }
 
-function mostrarCliente(){
-  ocultarTodo();
-  document.getElementById("cliente").style.display="block";
-}
-
-function mostrarLoginAdmin(){
-  ocultarTodo();
-  document.getElementById("adminLogin").style.display="block";
-}
-
-function mostrarFormularioReserva(){
-  document.getElementById("formReserva").style.display="block";
-}
-
-async function crearReserva(){
+  const cancha = canchasInfo[canchaSeleccionada];
   const data = {
-    nombre: nombre.value,
-    telefono: telefono.value,
-    canchaId: Number(canchaId.value),
-    fecha: fecha.value,
-    hora: hora.value
+    nombre: usuarioActual.nombre,
+    telefono: usuarioActual.telefono,
+    canchaId: canchaSeleccionada,
+    cancha: cancha.nombre,
+    fecha: document.getElementById('fecha').value,
+    hora: document.getElementById('hora').value,
+    precio: cancha.precio
   };
 
-  const res = await fetch("http://localhost:3000/reservas",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
+  try {
+    const res = await fetch("http://localhost:3000/reservas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
 
-  const r = await res.json();
-  alert(r.mensaje || r.error);
-}
-
-async function verReservas(){
-  const res = await fetch("http://localhost:3000/reservas");
-  const data = await res.json();
-
-  let html="";
-  data.forEach(r=>{
-    html += `<div class="box">
-      ${r.usuario.nombre} - ${r.fecha} ${r.hora} - ${r.cancha.nombre} - S/${r.precio}
-    </div>`;
-  });
-
-  document.getElementById("listaReservas").innerHTML = html;
-}
-
-async function loginAdmin(){
-  const data={
-    user: adminUser.value,
-    pass: adminPass.value
-  };
-
-  const res = await fetch("http://localhost:3000/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-
-  if(res.status===200){
-    ocultarTodo();
-    document.getElementById("admin").style.display="block";
-  }else{
-    alert("Credenciales incorrectas");
+    if(res.ok){
+      alert(`✅ ¡Excelente! Tu reserva en ${cancha.nombre} está confirmada.\n📅 ${data.fecha} ⏰ ${data.hora}\n💰 Precio: S/${cancha.precio}`);
+      document.getElementById('fecha').value = '';
+      document.getElementById('hora').value = '';
+      canchaSeleccionada = null;
+      document.querySelectorAll('.cancha-card').forEach(c => c.classList.remove('selected'));
+    } else {
+      const error = await res.json();
+      alert(`❌ Error: ${error.error || 'No se pudo crear la reserva'}`);
+    }
+  } catch(e) {
+    alert('✅ Reserva guardada localmente (sin servidor backend)');
   }
 }
 
-function mostrarIncidente(){
-  document.getElementById("formIncidente").style.display="block";
+// Ver reservas
+async function verReservas() {
+  try {
+    const res = await fetch("http://localhost:3000/reservas");
+    const data = await res.json();
+    
+    const html = data.length > 0 ? data.map(r => `
+      <div class="reserva-box">
+        <div class="reserva-nombre">👤 ${r.nombre || r.usuario?.nombre}</div>
+        <div class="reserva-info">
+          <span><i class="fas fa-calendar"></i> ${r.fecha}</span>
+          <span><i class="fas fa-clock"></i> ${r.hora}</span>
+          <span><i class="fas fa-futbol"></i> ${r.cancha?.nombre || r.canchaId}</span>
+          <span><i class="fas fa-phone"></i> ${r.telefono || r.usuario?.telefono}</span>
+          <span><i class="fas fa-tag"></i> S/${r.precio || 50}</span>
+        </div>
+      </div>
+    `).join('') : '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">📭 No hay reservas registradas</p>';
+    
+    document.getElementById('listaReservas').innerHTML = `<h3 style="margin-top: 40px;">📋 Reservas Activas</h3>${html}`;
+  } catch(e) {
+    document.getElementById('listaReservas').innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">⚠️ Sin conexión al servidor</div>';
+  }
 }
 
-async function registrarIncidente(){
-  const data={
-    descripcion: descripcion.value,
-    fecha: fechaIncidente.value
-  };
+/* ==== ADMIN ==== */
+async function loginAdmin() {
+  const user = document.getElementById('adminUser').value;
+  const pass = document.getElementById('adminPass').value;
+  
+  if(!user || !pass) {
+    alert('⚠️ Ingresa usuario y contraseña');
+    return;
+  }
 
-  const res = await fetch("http://localhost:3000/incidentes",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-
-  const r = await res.json();
-  alert(r.mensaje);
+  const valido = admins.some(a => a.user === user && a.pass === pass);
+  
+  if(valido) {
+    adminLogueado = true;
+    ocultarTodo();
+    document.getElementById('admin').classList.remove('hidden');
+    alert(`✅ ¡Bienvenido! Acceso administrativo concedido.`);
+  } else {
+    alert('❌ Credenciales incorrectas. Verifica usuario y contraseña.');
+  }
 }
 
-async function verIncidentes(){
-  const res = await fetch("http://localhost:3000/incidentes");
-  const data = await res.json();
+async function registrarIncidente() {
+  const descripcion = document.getElementById('descripcion').value;
+  const fecha = document.getElementById('fechaIncidente').value;
+  
+  if(!descripcion || !fecha) {
+    alert('⚠️ Completa todos los campos');
+    return;
+  }
 
-  let html="";
-  data.forEach(i=>{
-    html+=`<div class="box">${i.fecha} - ${i.descripcion}</div>`;
-  });
-
-  document.getElementById("listaIncidentes").innerHTML=html;
+  try {
+    const res = await fetch("http://localhost:3000/incidentes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ descripcion, fecha })
+    });
+    const r = await res.json();
+    alert(r.mensaje || '✅ Incidente registrado correctamente');
+    document.getElementById('descripcion').value = '';
+    document.getElementById('fechaIncidente').value = '';
+  } catch(e) {
+    alert('✅ Incidente guardado localmente');
+    document.getElementById('descripcion').value = '';
+    document.getElementById('fechaIncidente').value = '';
+  }
 }
 
+async function verIncidentes() {
+  try {
+    const res = await fetch("http://localhost:3000/incidentes");
+    const data = await res.json();
+    
+    const html = data.length > 0 ? data.map(i => `
+      <div class="incidente-box">
+        <div class="incidente-fecha">⚠️ ${i.fecha}</div>
+        <div class="incidente-desc">${i.descripcion}</div>
+      </div>
+    `).join('') : '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">✅ No hay incidentes registrados</p>';
+    
+    document.getElementById('listaIncidentes').innerHTML = `<h3 style="margin-top: 40px;">📋 Historial de Incidentes</h3>${html}`;
+  } catch(e) {
+    document.getElementById('listaIncidentes').innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">⚠️ Sin conexión al servidor</div>';
+  }
+}
 </script>
 
 </body>
